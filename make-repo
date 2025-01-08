@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+# Create the remote repository.
+git init -q requests-filter
+echo '* filter=the-filter' >requests-filter/.gitattributes
+git -C requests-filter add .
+git -C requests-filter commit -m 'Initial commit'
+
+# Clone it.
+filter_path="$(realpath the-filter)"
+remote_url="file://$(realpath requests-filter)"
+echo git -c filter.the-filter.process="$filter_path" clone "$remote_url" requests-filter-clone  # FIXME: Remove echo.
