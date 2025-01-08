@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+# Create the remote repository.
+git init -q remote-repo
+echo '* filter=trivial' >remote-repo/.gitattributes
+git -C remote-repo add .
+git -C remote-repo commit -m 'Initial commit'
+
+# Clone it.
+filter_path="$(realpath the-filter)"
+remote_url="file://$(realpath remote-repo)"
+git -c filter.trivial.process="$filter_path" clone "$remote_url" local-clone
