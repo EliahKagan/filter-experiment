@@ -36,6 +36,7 @@ chmod +x remote-repo/b
 git -C remote-repo add .
 git -C remote-repo commit -m 'Initial commit'
 
-# Clone it.
+# Clone it and show the clone.
 "$gitlike_cmd" "$@" -c filter.arrow-example.process="$filter_cmd" \
     clone "file://$(realpath remote-repo)" local-clone
+ls --color -AlF local-clone
