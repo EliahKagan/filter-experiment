@@ -22,10 +22,10 @@ set -x
 
 # Compose the command that will run the arrow example using an absolute path.
 # (git and gix treat realtive paths as relatie to different locations, here.)
-sq="'"
-bsbs='\\'
+sq=\'
+bs=\\
 filter_path="$(realpath arrow)"
-filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bsbs$sq$sq/g")' process"
+filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bs$bs$sq$sq/g")' process"
 
 # Create the remote repository.
 git init -q remote-repo
