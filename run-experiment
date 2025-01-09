@@ -15,7 +15,7 @@ git -C remote-repo add .
 git -C remote-repo commit -m 'Initial commit'
 
 # Clone it.
-filter_cmd='../arrow process'
+filter_cmd='./arrow process'
 remote_url="file://$(realpath remote-repo)"
 "$gitlike_cmd" "$@" -c filter.arrow-example.process="$filter_cmd" \
     clone "$remote_url" local-clone
