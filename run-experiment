@@ -6,17 +6,26 @@ gitoxide_repo='../gitoxide'  # For the `arrow` example filter.
 gitlike_cmd="${1:?pass the command to test (git or gix) as an argument}"
 shift
 
-# Get ready.
+# Stop if repositories are left over from a previous run.
 if test -e remote-repo || test -e local-clone; then
     printf 'Found repos from previous experiment, stopping.\n' >&2
     exit 2
 fi
+
+# Build the arrow example and symlink to it, if necessary.
 (cd -- "$gitoxide_repo" && cargo build -p gix-filter --example arrow)
 test -e arrow || ln -s -- "$gitoxide_repo/target/debug/examples/arrow"
 
 # Report the experiment.
 printf 'Testing: %s\n' "$gitlike_cmd $*"
 set -x
+
+# Compose the command that will run the arrow example using an absolute path.
+# (git and gix treat realtive paths as relatie to different locations, here.)
+sq="'"
+bsbs='\\'
+filter_path="$(realpath arrow)"
+filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bsbs$sq$sq/g")' process"
 
 # Create the remote repository.
 git init -q remote-repo
@@ -28,8 +37,5 @@ git -C remote-repo add .
 git -C remote-repo commit -m 'Initial commit'
 
 # Clone it.
-filter_path="$(realpath arrow)"
-filter_cmd="'${filter_path//\'/\'\\\'\'}' process"
-remote_url="file://$(realpath remote-repo)"
 "$gitlike_cmd" "$@" -c filter.arrow-example.process="$filter_cmd" \
-    clone "$remote_url" local-clone
+    clone "file://$(realpath remote-repo)" local-clone
