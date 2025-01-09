@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+gitlike_cmd="${1:?pass the command to test (git or gix) as an argument}"
+shift
+printf 'Testing %s.\n' "$gitlike_cmd $*"
+
 # Create the remote repository.
 git init -q remote-repo
 echo '[ab] filter=arrow-example' >remote-repo/.gitattributes
@@ -13,4 +17,5 @@ git -C remote-repo commit -m 'Initial commit'
 # Clone it.
 filter_cmd='../arrow process'
 remote_url="file://$(realpath remote-repo)"
-git -c filter.arrow-example.process="$filter_cmd" clone "$remote_url" local-clone
+"$gitlike_cmd" "$@" -c filter.arrow-example.process="$filter_cmd" \
+    clone "$remote_url" local-clone
