@@ -1,0 +1,40 @@
+ek in 🌐 catenary in filter-experiment on  main
+❯ ./run-experiment git
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
+Testing: git
++ sq=\'
++ bs='\'
+++ realpath arrow
++ filter_path=/home/ek/repos/gitoxide/target/debug/examples/arrow
+++ printf '%s\n' /home/ek/repos/gitoxide/target/debug/examples/arrow
+++ sed 's/'\''/'\''\\'\'''\''/g'
++ filter_cmd=''\''/home/ek/repos/gitoxide/target/debug/examples/arrow'\'' process'
++ git init -q remote-repo
++ echo '[ab] filter=arrow-example'
++ echo A
++ echo B
++ echo C
++ chmod +x remote-repo/b remote-repo/c
++ git -C remote-repo add .
++ git -C remote-repo commit -m 'Initial commit'
+[main (root-commit) b55391f] Initial commit
+ 4 files changed, 4 insertions(+)
+ create mode 100644 .gitattributes
+ create mode 100644 a
+ create mode 100755 b
+ create mode 100755 c
+++ realpath remote-repo
++ git -c 'filter.arrow-example.process='\''/home/ek/repos/gitoxide/target/debug/examples/arrow'\'' process' clone file:///home/ek/repos/filter-experiment/remote-repo local-clone
+Cloning into 'local-clone'...
+remote: Enumerating objects: 6, done.
+remote: Counting objects: 100% (6/6), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 6 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+Receiving objects: 100% (6/6), done.
++ ls --color -AlF local-clone
+total 20
+-rw-r--r-- 1 ek ek    5 Jan  8 21:56 a
+-rwxr-xr-x 1 ek ek    5 Jan  8 21:56 b*
+-rwxr-xr-x 1 ek ek    2 Jan  8 21:56 c*
+drwxr-xr-x 8 ek ek 4096 Jan  8 21:56 .git/
+-rw-r--r-- 1 ek ek   26 Jan  8 21:56 .gitattributes

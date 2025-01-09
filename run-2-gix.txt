@@ -1,0 +1,47 @@
+ek in 🌐 catenary in filter-experiment on  main
+❯ ./run-experiment gix
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+Testing: gix
++ sq=\'
++ bs='\'
+++ realpath arrow
++ filter_path=/home/ek/repos/gitoxide/target/debug/examples/arrow
+++ printf '%s\n' /home/ek/repos/gitoxide/target/debug/examples/arrow
+++ sed 's/'\''/'\''\\'\'''\''/g'
++ filter_cmd=''\''/home/ek/repos/gitoxide/target/debug/examples/arrow'\'' process'
++ git init -q remote-repo
++ echo '[ab] filter=arrow-example'
++ echo A
++ echo B
++ echo C
++ chmod +x remote-repo/b remote-repo/c
++ git -C remote-repo add .
++ git -C remote-repo commit -m 'Initial commit'
+[main (root-commit) 93d9bc8] Initial commit
+ 4 files changed, 4 insertions(+)
+ create mode 100644 .gitattributes
+ create mode 100644 a
+ create mode 100755 b
+ create mode 100755 c
+++ realpath remote-repo
++ gix -c 'filter.arrow-example.process='\''/home/ek/repos/gitoxide/target/debug/examples/arrow'\'' process' clone file:///home/ek/repos/filter-experiment/remote-repo local-clone
+ 21:57:43 indexing done 6.0 objects in 0.00s (135.1K objects/s)
+ 21:57:43 decompressing done 360B in 0.00s (7.1MB/s)
+ 21:57:43     Resolving done 6.0 objects in 0.05s (118.0 objects/s)
+ 21:57:43      Decoding done 360B in 0.05s (7.1KB/s)
+ 21:57:43 writing index file done 1.2KB in 0.00s (39.0MB/s)
+ 21:57:43  create index file done 6.0 objects in 0.05s (118.0 objects/s)
+ 21:57:43          read pack done 367B in 0.05s (7.0KB/s)
+ 21:57:43           checkout done 4.0 files in 0.01s (579.0 files/s)
+ 21:57:43            writing done 38B in 0.01s (5.5KB/s)
+HEAD:refs/remotes/origin/HEAD (implicit)
+ 93d9bc8ef5023e578c7ff3d14b95eb213d44fcf0 HEAD symref-target:refs/heads/main -> refs/remotes/origin/HEAD [new]
++refs/heads/*:refs/remotes/origin/*
+ 93d9bc8ef5023e578c7ff3d14b95eb213d44fcf0 refs/heads/main -> refs/remotes/origin/main [new]
++ ls --color -AlF local-clone
+total 20
+-rw-r--r-- 1 ek ek    5 Jan  8 21:57 a
+-rw-r--r-- 1 ek ek    5 Jan  8 21:57 b
+-rwxr-xr-x 1 ek ek    2 Jan  8 21:57 c*
+drwxr-xr-x 7 ek ek 4096 Jan  8 21:57 .git/
+-rw-r--r-- 1 ek ek   26 Jan  8 21:57 .gitattributes
