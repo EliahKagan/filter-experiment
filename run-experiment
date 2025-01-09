@@ -22,8 +22,8 @@ set -x
 
 # Compose the command that will run the arrow example using an absolute path.
 # (git and gix treat realtive paths as relatie to different locations, here.)
-sq=\'
-bs=\\
+sq="'"
+bs="\\"
 filter_path="$(realpath arrow)"
 filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bs$bs$sq$sq/g")' process"
 
