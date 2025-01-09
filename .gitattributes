@@ -1,0 +1,3 @@
+check text eol=lf
+clean text eol=lf
+run-experiment text eol=lf
