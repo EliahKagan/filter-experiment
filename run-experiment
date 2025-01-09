@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -eu
 gitoxide_repo='../gitoxide'  # For the `arrow` example filter.
 
 # Read command-line arguments.
