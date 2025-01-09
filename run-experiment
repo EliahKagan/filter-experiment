@@ -1,9 +1,12 @@
 #!/bin/sh
 set -e
 
+# Get ready.
 gitlike_cmd="${1:?pass the command to test (git or gix) as an argument}"
 shift
+(cd ../gitoxide && cargo build -p gix-filter --example arrow)
 printf 'Testing %s.\n' "$gitlike_cmd $*"
+set -x
 
 # Create the remote repository.
 git init -q remote-repo
