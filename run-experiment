@@ -3,7 +3,10 @@ set -e
 
 # Create the remote repository.
 git init -q remote-repo
-echo '* filter=arrow-example' >remote-repo/.gitattributes
+echo '[ab] filter=arrow-example' >remote-repo/.gitattributes
+echo A >remote-repo/a
+echo B >remote-repo/b
+chmod +x remote-repo/b
 git -C remote-repo add .
 git -C remote-repo commit -m 'Initial commit'
 
