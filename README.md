@@ -64,7 +64,14 @@ For full output of the `gix clone` experiment, see [`transcript-2-gix.txt`](tran
 
 ## Caveat
 
-If I understand correctly, the arrow filter, when run as a process filter, enables delays automatically unless told not to. However, it may be that the small number of files I was using were insufficient to actually produce any delays, or interesting ones. I am unsure how, if at all, that might affect this. Unfortunately, process filters, especially with delays, are not an aspect of Git behavior that I have much prior experience with.
+If I understand correctly, the arrow filter, when run as a process filter, enables delays automatically unless told not to. Under this change, the disparity between `git` and `gix` behavior goes away:
+
+```diff
+-filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bs$bs$sq$sq/g")' process"
++filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bs$bs$sq$sq/g")' process disallow-delay"
+```
+
+However, while delays are enabled--and that the filter reports that it allows delays is necessary to get the distinctive result of the `gix clone` experiment where `b` does not get executable permissions--it may be that the small number of files I was using were insufficient to actually produce any actual delays, or interesting ones. I am unsure how, if at all, that might affect this. Unfortunately, process filters, especially with delays, are not an aspect of Git behavior that I have much prior experience with.
 
 ## License
 
