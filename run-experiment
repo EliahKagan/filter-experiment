@@ -21,7 +21,7 @@ printf 'Testing: %s\n' "$gitlike_cmd $*"
 set -x
 
 # Compose the command that will run the arrow example using an absolute path.
-# (git and gix treat realtive paths as relatie to different locations, here.)
+# (git and gix treat relative paths as relative to different locations, here.)
 sq="'"
 bs="\\"
 filter_path="$(realpath arrow)"
