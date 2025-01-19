@@ -1,4 +1,4 @@
-# filter-experiment: long-running smudge filters in `git clone` vs. `gix clone`
+# filter-experiment - testing `git clone` and `gix clone` with a process smudge filter
 
 This investigates how smudge (checkout) process filters interact with executable permissions in `git clone` and gitoxide's `gix clone`.
 
