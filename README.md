@@ -1,10 +1,10 @@
 # filter-experiment - testing `git clone` and `gix clone` with a process smudge filter
 
-This investigates how smudge (checkout) process filters interact with executable permissions in `git clone` and gitoxide's `gix clone`.
+This investigates how smudge (checkout) process filters, with delays enabled, interact with executable permissions in `git clone` and gitoxide's `gix clone`.
 
 The experiment here relates to the mention of filters in [RUSTSEC-2025-0001](https://rustsec.org/advisories/RUSTSEC-2025-0001.html) (CVE-2025-22620, [GHSA-fqmf-w4xh-33rh](https://github.com/GitoxideLabs/gitoxide/security/advisories/GHSA-fqmf-w4xh-33rh)). But this is a separate experiment from the proof of concept there, and it is *not* an alternative proof of concept: the case this exercises does not appear to be vulnerable even in versions of `gix-worktree-state` affected by that vulnerability, at least with the `gix clone` command itself.
 
-However, this does demonstrate a separate, non-security bug where, when a file is tracked as executable, and the configuration and filesystem for `gix clone` are such that it should set executable bits for files tracked as executable, it fails to do so if the file has an attribute applied to it and a long-running smudge filter is configured to be used when checking out files with that attribute. Other executable files (including in the same checkout) that do not have the attribute applied are still checked out as executable.
+However, this does demonstrate a separate, non-security bug where, when a file is tracked as executable, and the configuration and filesystem for `gix clone` are such that it should set executable bits for files tracked as executable, it fails to do so if the file has an attribute applied to it, a long-running smudge filter is configured to be used when checking out files with that attribute, and the filter process supports delays. Other executable files (including in the same checkout) that do not have the attribute applied are still checked out as executable.
 
 This happens both with `gix-worktree-state` 0.17.0 (which fixed [RUSTSEC-2025-0001](https://rustsec.org/advisories/RUSTSEC-2025-0001.html)) and earlier versions, with 0.16.0 having also been tested. The results of the experiment are unchanged between the tested versions.
 
@@ -16,13 +16,13 @@ This is meant to be run on Unix-like systems and was tested on Arch Linux. It te
 
 As written, the `run-experiment` script and `arrow` symlink assume the [`gitoxide`](https://github.com/GitoxideLabs/gitoxide) repository is cloned, with that name, as a sibling directory of this one--that is, that it can be accessed at `../gitoxide`. The script can be modified accordingly if that is not the case, and the symlink either modified or deleted.
 
-It does not assume that the example (or any part of `gitoxide`) has been built. It will build the example if it has not already been built or if it is out of date compared to whatever is checked out in the `gitoxide` repository. A working Rust toolchain and `cargo` command is assumed. Because this attempts to build the example, **it will write, and may over write, to files in the `../gitoxide/target` directory**. (Ordinarily that would not be a problem, since one rarely puts anything that has to be preserved there.)
+It does not assume that the example (or any part of `gitoxide`) has been built. It will build the example if it has not already been built or if it is out of date compared to whatever is checked out in the `gitoxide` repository. A working Rust toolchain and `cargo` command is assumed. Because this attempts to build the example, **it will write, and may over write, files in the `../gitoxide/target` directory**. (Ordinarily that is not a problem, since one rarely puts anything that has to be preserved there.)
 
 The reason this builds the example rather than installing it with `cargo run` is that, at least as of this writing, it is not listed in `examples` in any `Cargo.toml` file, so it cannot easily be installed from crates.io in that way. (Building the example from the `gitoxide` repository also allows an arbitrarily selected version of the `arrow.rs` filter to be used more easily.)
 
 ## The experiment
 
-The `run-experiment` script takes an argument, `git` or `gix`, to tell it what clone command to test. This can actually be arbitrarily many arguments, in case you want to test it with options like `--trace` (for `gix`) or extra `-c var=value` pairs. Usually it would be run just as `./run-experiment git` or `./run-experiment gix`.
+The `run-experiment` script takes an argument, `git` or `gix`, to tell it what program, capable of cloning a Git repository, it should test. This can actually be arbitrarily many arguments, in case you want to test it with options like `--trace` (for `gix`) or extra `-c var=value` pairs. Usually it would be run just as `./run-experiment git` or `./run-experiment gix`.
 
 It runs the command specified by its arguments, with the additional arguments `-c filter.arrow-example.process=... clone`, where `...` is a full path to the `arrow` symlink in the current directory.
 
@@ -58,20 +58,20 @@ With `gix clone` (in current versions of `gitoxide`, last rechecked as of 19 Jan
 -rwxr-xr-x 1 ek ek    2 Jan  8 21:57 c*
 ```
 
-This is to say that, when a long running smudge filter (i.e. process smudge filter) is used in the checkout, the files it applies to do not have `+x` set. This makes no difference on `a`, which is not tracked as executable, nor `c`, which is tracked as executable but does not have the attribute that causes the filter to apply. But it prevents `b` from being set executable as intended.
+This is to say that, when a long running smudge filter (i.e. process smudge filter) is used in the checkout, and the filter supports delays, the files it applies to do not ever get `+x` set on them in the clone. This makes no difference on `a`, which is not tracked as executable, nor `c`, which is tracked as executable but does not have the attribute that causes the filter to apply. But it prevents `b` from being set executable as intended.
 
 For full output of the `gix clone` experiment, see [`transcript-2-gix.txt`](transcript-2-gix.txt).
 
 ## Caveat
 
-If I understand correctly, the arrow filter, when run as a process filter, enables delays automatically unless told not to. Under this change, the disparity between `git` and `gix` behavior goes away:
+The `arrow.rs` filter, when run as a process filter, enables delays automatically unless told not to. Under this change, the disparity between `git` and `gix` behavior goes away:
 
 ```diff
 -filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bs$bs$sq$sq/g")' process"
 +filter_cmd="'$(printf '%s\n' "$filter_path" | sed "s/$sq/$sq$bs$bs$sq$sq/g")' process disallow-delay"
 ```
 
-However, while delays are enabled--and that the filter reports that it allows delays is necessary to get the distinctive result of the `gix clone` experiment where `b` does not get executable permissions--it may be that the small number of files I was using were insufficient to actually produce any actual delays, or interesting ones. I am unsure how, if at all, that might affect this. Unfortunately, process filters, especially with delays, are not an aspect of Git behavior that I have much prior experience with.
+However, while delays are enabled in the experiment--and while the filter reporting that it allows delays is necessary to get the distinctive result of the `gix clone` experiment where `b` does not get executable permissions--I think it may be that the small number of files I was using were insufficient to actually produce any actual delays, or interesting ones. I am unsure how, if at all, that might affect this. Unfortunately, process filters, especially with delays, are not an aspect of Git behavior that I have much prior experience with.
 
 ## License
 
