@@ -32,6 +32,8 @@ The test repository it creates and clones locally has three important files othe
 - `b`, an *executable* regular file (mode 100755) that *is* subjected to the filter.
 - `c`, an *executable* regular file (mode 100755) that is *not* subjected to the filter.
 
+Between runs of the experiment, `./clean` can be used to remove the test repositories that the script creates and uses. (The script will not proceed if either exist.)
+
 ## Results
 
 ### `git clone`
